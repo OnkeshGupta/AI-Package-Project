@@ -1,6 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routes.upload import router as upload_router
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = FastAPI(title="AI Hiring MVP - Day 1")
 
