@@ -4,6 +4,12 @@ from fastapi import APIRouter, File, UploadFile, HTTPException
 from app.services.parser import extract_text_from_file
 from app.services.nlp import extract_name, extract_experience_years, match_skills
 import json
+from fastapi import Form
+from app.services.scoring import (
+    get_embedding,
+    compute_similarity,
+    analyze_skill_gap
+)
 
 router = APIRouter()
 
@@ -54,4 +60,47 @@ async def upload_resume(file: UploadFile = File(...)):
     "experience_years": exp_years,
     "skills_detected": skills_found,
     "raw_text_snippet": text[:600]
+    }
+
+@router.post("/score_resume")
+async def score_resume(
+    jd_text: str = Form(...),
+    resume_text: str = Form(None),
+    file: UploadFile = File(None)
+):
+    """
+    Score resume against a job description.
+    Accepts resume as text OR file.
+    """
+
+    # Step 1: Get resume text
+    if file:
+        filename = file.filename
+        dest_path = os.path.join(UPLOAD_DIR, filename)
+        with open(dest_path, "wb") as f:
+            shutil.copyfileobj(file.file, f)
+
+        resume_text = extract_text_from_file(dest_path)
+
+    if not resume_text:
+        raise HTTPException(status_code=400, detail="Resume text or file required")
+
+    # Step 2: Compute embeddings
+    resume_vec = get_embedding(resume_text)
+    jd_vec = get_embedding(jd_text)
+
+    match_score = compute_similarity(resume_vec, jd_vec)
+
+    # Step 3: Extract resume skills
+    resume_skills = match_skills(resume_text, SKILLS_LIST)
+
+    # Step 4: Skill gap analysis
+    gap = analyze_skill_gap(resume_skills, jd_text, SKILLS_LIST)
+
+    return {
+        "match_score": round(float(match_score), 2),
+        "matched_skills": gap["matched_skills"],
+        "missing_skills": gap["missing_skills"],
+        "resume_skills": resume_skills,
+        "note": "Semantic similarity based on resume and job description"
     }
