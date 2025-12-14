@@ -164,14 +164,15 @@ def generate_recruiter_feedback(
     """
 
     # --- Overall verdict ---
-    if final_score >= 80:
+    if final_score >= 75:
         verdict = "Strong Match"
-    elif final_score >= 65:
+    elif final_score >= 60:
         verdict = "Good Match"
-    elif final_score >= 50:
+    elif final_score >= 45:
         verdict = "Average Match"
     else:
         verdict = "Weak Match"
+
 
     # --- Strengths ---
     strengths = []
