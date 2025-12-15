@@ -2,9 +2,7 @@ import os
 import shutil
 import json
 from typing import List
-
 from fastapi import APIRouter, File, UploadFile, Form, HTTPException
-
 from app.services.parser import extract_text_from_file
 from app.services.nlp import (
     extract_name,
@@ -18,7 +16,6 @@ from app.services.scoring import (
     hybrid_score,
     generate_recruiter_feedback
 )
-
 from app.models.schemas import RankAndScoreResponse
 from app.core.exceptions import (
     FileProcessingError,
