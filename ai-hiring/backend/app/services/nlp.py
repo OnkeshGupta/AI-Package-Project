@@ -234,49 +234,123 @@ def _parse_month_year(s: str) -> Optional[datetime]:
 
 def extract_experience_years(text: str) -> Optional[float]:
     """
-    Improved experience extraction:
-    - Matches explicit 'X years' phrases
-    - Extracts month-year ranges like 'May 2019 - Jul 2021' and aggregates durations
-    - Handles year-only ranges like '2018-2021'
-    Returns total years (float rounded to one decimal) or None.
+    Extract total professional experience in years.
+
+    ✔ Considers ONLY experience-related sections
+    ✔ Ignores education timelines (e.g., 2022–2026)
+    ✔ Supports:
+        - "X years" / "X.X years"
+        - Month–year ranges (May 2019 - Jul 2021)
+        - Year ranges (2018 - 2021)
+    ✔ Returns float years rounded to 1 decimal
     """
+
     if not text:
         return None
 
-    # 1) direct numeric "X years" phrases
-    m = re.search(r'(\d+(?:\.\d+)?)\s*\+?\s*(?:years|yrs|year|yr)\b', text, flags=re.I)
+    text_lower = text.lower()
+
+    # --------------------------------------------------
+    # 1️⃣ Identify EXPERIENCE sections only
+    # --------------------------------------------------
+    experience_section_patterns = [
+        r"experience",
+        r"work experience",
+        r"professional experience",
+        r"employment",
+        r"internship",
+        r"work history"
+    ]
+
+    lines = text.splitlines()
+    experience_lines = []
+    capture = False
+
+    for line in lines:
+        line_lower = line.lower()
+
+        # Start capturing when experience section begins
+        if any(pat in line_lower for pat in experience_section_patterns):
+            capture = True
+            continue
+
+        # Stop capturing if we hit education / skills section
+        if capture and re.search(
+            r"\b(education|skills|projects|certifications|courses|languages)\b",
+            line_lower
+        ):
+            break
+
+        if capture:
+            experience_lines.append(line)
+
+    experience_text = "\n".join(experience_lines)
+
+    if not experience_text.strip():
+        return None
+
+    # --------------------------------------------------
+    # 2️⃣ Direct "X years" extraction
+    # --------------------------------------------------
+    m = re.search(
+        r"(\d+(?:\.\d+)?)\s*\+?\s*(years|yrs|year|yr)\b",
+        experience_text,
+        flags=re.I
+    )
     if m:
         try:
             return float(m.group(1))
-        except Exception:
+        except ValueError:
             pass
 
     total_months = 0
 
-    # 2) month-year ranges like 'May 2019 - Jul 2021'
+    # --------------------------------------------------
+    # 3️⃣ Month–Year ranges (May 2019 - Jul 2021)
+    # --------------------------------------------------
     ranges = re.findall(
-        r'([A-Za-z]{3,9}\s*\d{4})\s*[\-\u2013\u2014to]{1,4}\s*([A-Za-z]{3,9}\s*\d{4})',
-        text, flags=re.I
+        r"([A-Za-z]{3,9}\s*\d{4})\s*[\-\u2013\u2014to]{1,4}\s*([A-Za-z]{3,9}\s*\d{4}|present|current)",
+        experience_text,
+        flags=re.I
     )
+
+    now = datetime.utcnow()
+
     for start_s, end_s in ranges:
         start_dt = _parse_month_year(start_s)
-        end_dt = _parse_month_year(end_s)
-        if start_dt and end_dt and end_dt >= start_dt:
-            months = (end_dt.year - start_dt.year) * 12 + (end_dt.month - start_dt.month) + 1
-            total_months += months
 
-    # 3) year-only ranges like '2018-2021'
-    year_ranges = re.findall(r'\b(20\d{2})\s*[\-–—]\s*(20\d{2})\b', text)
+        if re.search(r"present|current", end_s, flags=re.I):
+            end_dt = now
+        else:
+            end_dt = _parse_month_year(end_s)
+
+        if start_dt and end_dt and end_dt >= start_dt:
+            months = (end_dt.year - start_dt.year) * 12 + (end_dt.month - start_dt.month)
+            total_months += max(months, 0)
+
+    # --------------------------------------------------
+    # 4️⃣ Year-only ranges (2018 - 2021)
+    # --------------------------------------------------
+    year_ranges = re.findall(
+        r"\b(20\d{2})\s*[\-–—]\s*(20\d{2}|present|current)\b",
+        experience_text,
+        flags=re.I
+    )
+
     for ys, ye in year_ranges:
         try:
-            months = (int(ye) - int(ys) + 1) * 12
-            total_months += months
-        except Exception:
+            start_year = int(ys)
+            end_year = now.year if re.search(r"present|current", ye, flags=re.I) else int(ye)
+            if end_year >= start_year:
+                total_months += (end_year - start_year) * 12
+        except ValueError:
             pass
 
+    # --------------------------------------------------
+    # 5️⃣ Final calculation
+    # --------------------------------------------------
     if total_months > 0:
-        years = round(total_months / 12.0, 1)
-        return years
+        return round(total_months / 12.0, 1)
 
     return None
 
