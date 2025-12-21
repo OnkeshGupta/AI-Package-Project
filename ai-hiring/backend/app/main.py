@@ -17,7 +17,7 @@ async def lifespan(app: FastAPI):
     print("🛑 Application shutting down")
 
 app = FastAPI(
-    title="AI Hiring Backend",
+    title="TalentLens AI",
     lifespan=lifespan
 )
 
