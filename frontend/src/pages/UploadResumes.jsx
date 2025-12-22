@@ -38,14 +38,6 @@ export default function UploadResumes() {
     addFiles(dropped);
   };
 
-  const handleDragOver = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-  };
-
-  const handleDragEnter = () => setDragActive(true);
-  const handleDragLeave = () => setDragActive(false);
-
   const removeFile = (index) => {
     setFiles((prev) => prev.filter((_, i) => i !== index));
   };
@@ -88,9 +80,9 @@ export default function UploadResumes() {
 
             <div
               onDrop={handleDrop}
-              onDragOver={handleDragOver}
-              onDragEnter={handleDragEnter}
-              onDragLeave={handleDragLeave}
+              onDragOver={(e) => e.preventDefault()}
+              onDragEnter={() => setDragActive(true)}
+              onDragLeave={() => setDragActive(false)}
               className={`border-2 border-dashed rounded-xl p-12 text-center bg-zinc-900 transition-all duration-300 ${
                 dragActive
                   ? "border-indigo-500 bg-indigo-500/10 shadow-[0_0_40px_rgba(99,102,241,0.35)]"
@@ -172,9 +164,9 @@ export default function UploadResumes() {
           </section>
 
           {/* ERROR */}
-          {error && <p className="text-red-400 text-sm mt-4">{error}</p>}
+          {error && <p className="text-red-400 text-sm">{error}</p>}
 
-          {/* SUCCESS (temporary) */}
+          {/* RESULTS */}
           {result && (
             <section className="mt-16">
               <h2 className="text-2xl font-bold mb-6">
@@ -187,18 +179,12 @@ export default function UploadResumes() {
                   .map((candidate, index) => (
                     <div
                       key={index}
-                      className="
-    bg-zinc-900 rounded-xl p-6 border border-zinc-800
-    transition-all duration-300
-    hover:scale-[1.01]
-    hover:border-indigo-500/60
-    hover:shadow-[0_0_40px_rgba(99,102,241,0.15)]
-  "
+                      className="bg-zinc-900 border border-zinc-800 rounded-xl p-6 transition-all duration-300 hover:-translate-y-1 hover:border-indigo-500/50 hover:shadow-[0_0_40px_rgba(99,102,241,0.25)]"
                     >
-                      {/* Header */}
+                      {/* HEADER */}
                       <div className="flex justify-between items-center mb-4">
                         <div>
-                          <h3 className="text-lg font-semibold text-white">
+                          <h3 className="text-lg font-semibold">
                             #{index + 1} — {candidate.filename}
                             {index === 0 && (
                               <span className="ml-3 px-3 py-1 text-xs rounded-full bg-indigo-500/20 text-indigo-400">
@@ -219,21 +205,31 @@ export default function UploadResumes() {
                           <p className="text-2xl font-bold text-indigo-400">
                             {candidate.final_score}
                           </p>
-                          <div className="mt-2 w-full bg-zinc-800 h-2 rounded-full overflow-hidden">
-                            <div
-                              className="h-2 rounded-full bg-indigo-500 transition-all duration-700"
-                              style={{
-                                width: `${Math.min(
-                                  candidate.final_score,
-                                  100
-                                )}%`,
-                              }}
-                            />
+
+                          {/* SCORE BAR */}
+                          <div className="mt-4">
+                            <div className="w-full h-2 bg-zinc-800 rounded-full overflow-hidden">
+                              <div
+                                className={`h-full rounded-full transition-all duration-700 ${
+                                  candidate.final_score >= 75
+                                    ? "bg-green-500"
+                                    : candidate.final_score >= 50
+                                    ? "bg-yellow-400"
+                                    : "bg-red-500"
+                                }`}
+                                style={{ width: `${candidate.final_score}%` }}
+                              />
+                            </div>
+
+                            <p className="text-xs text-gray-400 mt-1">
+                              Match Strength: {candidate.final_score.toFixed(1)}
+                              %
+                            </p>
                           </div>
                         </div>
                       </div>
 
-                      {/* Skills */}
+                      {/* SKILLS */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                           <p className="text-sm text-gray-400 mb-2">
@@ -268,10 +264,10 @@ export default function UploadResumes() {
                         </div>
                       </div>
 
-                      {/* Summary */}
-                      <div className="mt-4 text-sm text-gray-400">
+                      {/* SUMMARY */}
+                      <p className="mt-4 text-sm text-gray-400">
                         {candidate.feedback.summary}
-                      </div>
+                      </p>
                     </div>
                   ))}
               </div>
