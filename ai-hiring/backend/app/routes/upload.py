@@ -3,7 +3,7 @@ import shutil
 import json
 import re
 from typing import List
-
+from app.auth.dependencies import get_current_user
 from fastapi import APIRouter, File, UploadFile, Form, HTTPException, Depends
 from sqlalchemy.orm import Session
 
@@ -159,7 +159,8 @@ async def rank_and_score_resumes(
     jd_text: str = Form(...),
     required_experience: float = Form(None),
     files: List[UploadFile] = File(...),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
 ):
     print("FILES RECEIVED:", files)
     print("FILES COUNT:", len(files))
