@@ -1,21 +1,32 @@
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
+
 from app.db.dependencies import get_db
 from app.models.user import User
 from app.auth.auth_utils import hash_password, verify_password
 from app.auth.jwt import create_access_token
+from app.auth.schemas import RegisterRequest, LoginRequest
+from pydantic import BaseModel, EmailStr
 
-router = APIRouter(prefix="/auth", tags=["Auth"])
+router = APIRouter()
+
+
+class RegisterSchema(BaseModel):
+    email: EmailStr
+    password: str
 
 @router.post("/register")
-def register(email: str, password: str, db: Session = Depends(get_db)):
-    existing = db.query(User).filter(User.email == email).first()
-    if existing:
-        raise HTTPException(status_code=400, detail="Email already registered")
+def register(
+    data: RegisterSchema,
+    db: Session = Depends(get_db)
+):
+    if db.query(User).filter(User.email == data.email).first():
+        raise HTTPException(status_code=400, detail="User already exists")
 
     user = User(
-        email=email,
-        hashed_password=hash_password(password)
+        email=data.email,
+        password_hash=hash_password(data.password)
     )
     db.add(user)
     db.commit()
@@ -24,9 +35,13 @@ def register(email: str, password: str, db: Session = Depends(get_db)):
     return {"message": "User registered successfully"}
 
 @router.post("/login")
-def login(email: str, password: str, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.email == email).first()
-    if not user or not verify_password(password, user.hashed_password):
+def login(
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    db: Session = Depends(get_db)
+):
+    user = db.query(User).filter(User.email == form_data.username).first()
+
+    if not user or not verify_password(form_data.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
     token = create_access_token({"user_id": user.id})
