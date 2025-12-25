@@ -1,8 +1,10 @@
 import { useState } from "react";
 import Sidebar from "../components/Sidebar";
 import { rankAndScoreResumes } from "../api/resumeApi";
+import { useAuth } from "../auth/AuthContext";
 
 export default function UploadResumes() {
+  const { token } = useAuth();
   const [files, setFiles] = useState([]);
   const [jobDescription, setJobDescription] = useState("");
   const [dragActive, setDragActive] = useState(false);
@@ -44,19 +46,23 @@ export default function UploadResumes() {
 
   // ---------- ANALYZE ----------
   const handleAnalyze = async () => {
-    setLoading(true);
-    setError(null);
-    setResult(null);
+  setLoading(true);
+  setError(null);
 
-    try {
-      const data = await rankAndScoreResumes(files, jobDescription);
-      setResult(data);
-    } catch (err) {
-      setError(err.message || "Something went wrong");
-    } finally {
-      setLoading(false);
+  try {
+    if (!token) {
+      throw new Error("Not authenticated");
     }
-  };
+
+    const data = await rankAndScoreResumes(files, jobDescription, token);
+    setResult(data);
+  } catch (err) {
+    setError(err.message);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <div className="min-h-screen bg-black text-white ml-64">

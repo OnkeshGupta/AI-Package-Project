@@ -1,21 +1,26 @@
-export async function rankAndScoreResumes(files, jobDescription) {
+const API_BASE = "http://127.0.0.1:8000";
+
+export async function rankAndScoreResumes(files, jobDescription, token) {
   const formData = new FormData();
+
+  formData.append("jd_text", jobDescription);
 
   files.forEach((file) => {
     formData.append("files", file);
   });
 
-  formData.append("jd_text", jobDescription);
-
-  const response = await fetch("http://localhost:8000/api/rank_and_score", {
+  const res = await fetch(`${API_BASE}/api/rank_and_score`, {
     method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
     body: formData,
   });
 
-  if (!response.ok) {
-    const text = await response.text();
+  if (!res.ok) {
+    const text = await res.text();
     throw new Error(text || "Failed to analyze resumes");
   }
 
-  return response.json();
+  return res.json();
 }
