@@ -6,7 +6,8 @@ from typing import List
 from app.auth.dependencies import get_current_user
 from fastapi import APIRouter, File, UploadFile, Form, HTTPException, Depends
 from sqlalchemy.orm import Session
-
+from app.models.ranking_session import RankingSession
+from app.auth.dependencies import get_current_user
 from app.services.parser import extract_text_from_file
 from app.services.nlp import (
     extract_name,
@@ -20,7 +21,6 @@ from app.services.scoring import (
     hybrid_score,
     generate_recruiter_feedback
 )
-
 from app.db.dependencies import get_db
 from app.models.resume import Resume
 from app.models.job import JobDescription
@@ -187,6 +187,15 @@ async def rank_and_score_resumes(
         jd_vec = get_embedding(jd_text)
     except Exception:
         raise ScoringError("Failed to process job description")
+    
+    session = RankingSession(
+        user_id=current_user.id,
+        job_description=jd_text
+    )
+    db.add(session)
+    db.commit()
+    db.refresh(session)
+
 
     # -------- Resume loop --------
     for file in files:
@@ -240,6 +249,7 @@ async def rank_and_score_resumes(
         score = ResumeJobScore(
             resume_id=resume.id,
             job_id=job_record.id,
+            session_id=session.id,
             semantic_score=float(semantic),
             final_score=float(final_score),
             matched_skills=", ".join(gap["matched_skills"]),

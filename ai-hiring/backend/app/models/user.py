@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, String, DateTime
 from datetime import datetime, timezone
+from sqlalchemy.orm import relationship
 from app.db.base import Base
 
 class User(Base):
@@ -12,4 +13,10 @@ class User(Base):
     created_at = Column(
         DateTime(timezone=True),
         default=lambda: datetime.now(timezone.utc)
+    )
+
+    ranking_sessions = relationship(
+        "RankingSession",
+        back_populates="user",
+        cascade="all, delete-orphan"
     )

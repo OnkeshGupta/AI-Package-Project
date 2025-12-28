@@ -1,39 +1,33 @@
-const API_BASE = "http://127.0.0.1:8000";
+const API_BASE = "http://localhost:8000";
 
-function extractErrorMessage(data) {
-  if (!data) return "Something went wrong";
-
-  // FastAPI validation errors
-  if (Array.isArray(data.detail)) {
-    return data.detail.map((e) => e.msg).join(", ");
-  }
-
-  // Normal string error
-  if (typeof data.detail === "string") {
-    return data.detail;
-  }
-
-  return "Request failed";
-}
-
+/**
+ * REGISTER
+ * Backend expects JSON body
+ */
 export async function registerUser(email, password) {
   const res = await fetch(`${API_BASE}/auth/register`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+    },
     body: JSON.stringify({ email, password }),
   });
 
   if (!res.ok) {
     const data = await res.json();
-    throw new Error(extractErrorMessage(data));
+    throw new Error(data.detail || "Registration failed");
   }
 
   return res.json();
 }
 
+/**
+ * LOGIN
+ * Backend expects FORM DATA (OAuth2PasswordRequestForm)
+ */
 export async function loginUser(email, password) {
-  const form = new URLSearchParams();
-  form.append("username", email);
+  const form = new FormData();
+  form.append("username", email); // MUST be username
   form.append("password", password);
 
   const res = await fetch(`${API_BASE}/auth/login`, {
@@ -43,8 +37,8 @@ export async function loginUser(email, password) {
 
   if (!res.ok) {
     const data = await res.json();
-    throw new Error(extractErrorMessage(data));
+    throw new Error(data.detail || "Login failed");
   }
 
-  return res.json(); // { access_token }
+  return res.json(); // { access_token, token_type }
 }

@@ -4,14 +4,15 @@ from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
 
 from app.routes.upload import router as upload_router
+from app.routes.history import router as history_router
 from app.auth.auth_router import router as auth_router
 from app.core.exceptions import AppException
 from app.db.database import engine
 from app.db.base import Base
-import app.models  # IMPORTANT: load models
+import app.models  
 
 # -----------------------------
-# Lifespan (startup / shutdown)
+# Lifespan
 # -----------------------------
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -21,11 +22,25 @@ async def lifespan(app: FastAPI):
     print("🛑 Application shutting down")
 
 # -----------------------------
-# Create FastAPI app FIRST
+# Create app FIRST
 # -----------------------------
 app = FastAPI(
     title="TalentLens AI",
     lifespan=lifespan
+)
+
+# -----------------------------
+# ✅ CORS (THIS FIXES YOUR ISSUE)
+# -----------------------------
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # -----------------------------
@@ -39,20 +54,11 @@ async def app_exception_handler(request, exc: AppException):
     )
 
 # -----------------------------
-# Middleware
-# -----------------------------
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# -----------------------------
-# Routers (AFTER app creation)
+# Routers
 # -----------------------------
 app.include_router(auth_router, prefix="/auth", tags=["Auth"])
 app.include_router(upload_router, prefix="/api", tags=["Resume"])
+app.include_router(history_router, prefix="/api", tags=["History"])
 
 # -----------------------------
 # Health check

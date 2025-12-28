@@ -3,6 +3,8 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import UploadResumes from "./pages/UploadResumes";
 import ProtectedRoute from "./auth/ProtectedRoute";
+import HistoryPage from "./pages/HistoryPage";
+import HistoryDetail from "./pages/HistoryDetail";
 
 export default function App() {
   return (
@@ -21,6 +23,24 @@ export default function App() {
           element={
             <ProtectedRoute>
               <UploadResumes />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/history"
+          element={
+            <ProtectedRoute>
+              <HistoryPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/history/:sessionId"
+          element={
+            <ProtectedRoute>
+              <HistoryDetail />
             </ProtectedRoute>
           }
         />
