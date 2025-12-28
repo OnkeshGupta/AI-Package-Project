@@ -2,22 +2,19 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import UploadResumes from "./pages/UploadResumes";
-import ProtectedRoute from "./auth/ProtectedRoute";
 import HistoryPage from "./pages/HistoryPage";
-import HistoryDetail from "./pages/HistoryDetail";
+import ProtectedRoute from "./auth/ProtectedRoute";
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* ✅ DEFAULT ROUTE */}
+        {/* Public */}
         <Route path="/" element={<Navigate to="/login" replace />} />
-
-        {/* ✅ Public routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
-        {/* ✅ Protected route */}
+        {/* Protected */}
         <Route
           path="/upload"
           element={
@@ -32,15 +29,6 @@ export default function App() {
           element={
             <ProtectedRoute>
               <HistoryPage />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/history/:sessionId"
-          element={
-            <ProtectedRoute>
-              <HistoryDetail />
             </ProtectedRoute>
           }
         />

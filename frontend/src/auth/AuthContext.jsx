@@ -1,25 +1,33 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [token, setToken] = useState(
-    () => localStorage.getItem("access_token")
-  );
+  const [token, setToken] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  // ✅ Restore token on refresh
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    if (storedToken) {
+      setToken(storedToken);
+    }
+    setLoading(false);
+  }, []);
 
   const login = (newToken) => {
-    localStorage.setItem("access_token", newToken);
+    localStorage.setItem("token", newToken);
     setToken(newToken);
   };
 
   const logout = () => {
-    localStorage.removeItem("access_token");
+    localStorage.removeItem("token");
     setToken(null);
   };
 
   return (
     <AuthContext.Provider value={{ token, login, logout }}>
-      {children}
+      {!loading && children}
     </AuthContext.Provider>
   );
 }

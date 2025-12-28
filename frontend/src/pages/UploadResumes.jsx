@@ -46,23 +46,22 @@ export default function UploadResumes() {
 
   // ---------- ANALYZE ----------
   const handleAnalyze = async () => {
-  setLoading(true);
-  setError(null);
+    setLoading(true);
+    setError(null);
 
-  try {
-    if (!token) {
-      throw new Error("Not authenticated");
+    try {
+      if (!token) {
+        throw new Error("Not authenticated");
+      }
+
+      const data = await rankAndScoreResumes(files, jobDescription, token);
+      setResult(data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
-
-    const data = await rankAndScoreResumes(files, jobDescription, token);
-    setResult(data);
-  } catch (err) {
-    setError(err.message);
-  } finally {
-    setLoading(false);
-  }
-};
-
+  };
 
   return (
     <div className="min-h-screen bg-black text-white ml-64">
@@ -170,7 +169,13 @@ export default function UploadResumes() {
           </section>
 
           {/* ERROR */}
-          {error && <p className="text-red-400 text-sm">{error}</p>}
+          {error && (
+            <div className="mt-4 text-sm text-red-400 bg-red-500/10 border border-red-500/30 rounded-lg p-3">
+              {error.includes("401")
+                ? "Session expired. Please log in again."
+                : error}
+            </div>
+          )}
 
           {/* RESULTS */}
           {result && (
