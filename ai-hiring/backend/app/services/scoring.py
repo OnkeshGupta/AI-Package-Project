@@ -1,30 +1,15 @@
 from sentence_transformers import SentenceTransformer
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
-from app.services.nlp import match_skills
-
-# load model once (IMPORTANT for performance)
-_embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
-
+from app.services.skills import match_skills, semantic_skill_match
+from app.services.embeddings import EmbeddingService
+from app.services.skill_utils import flatten_skills
 
 def get_embedding(text: str) -> np.ndarray:
-    """
-    Convert input text into a numerical embedding vector.
-
-    Args:
-        text (str): Resume text or Job Description text
-
-    Returns:
-        np.ndarray: 1D embedding vector
-    """
     if not text or not text.strip():
-        raise ValueError("Text for embedding cannot be empty")
+        raise ValueError("Text cannot be empty")
+    return EmbeddingService.encode([text])[0]
 
-    # sentence-transformers expects a list
-    embedding = _embedding_model.encode([text])
-
-    # convert to 1D numpy array
-    return np.array(embedding[0])
 
 def compute_similarity(vec1: np.ndarray, vec2: np.ndarray) -> float:
     """
@@ -46,33 +31,41 @@ def compute_similarity(vec1: np.ndarray, vec2: np.ndarray) -> float:
     # convert to percentage score
     return float(round(similarity * 100, 2))
 
-def analyze_skill_gap(resume_skills: list, jd_text: str, skills_master: list):
+def analyze_skill_gap(
+    resume_skills: list,
+    jd_text: str,
+    skills_master: dict
+):
     """
-    Compare resume skills against job description skills.
-
-    Args:
-        resume_skills (list): skills extracted from resume
-        jd_text (str): job description text
-        skills_master (list): full skill list (skills.json)
-
-    Returns:
-        dict: matched_skills, missing_skills
+    Optimized skill gap analysis:
+    1. Extract skills from JD only
+    2. Compare resume against JD-relevant skills
     """
 
-    jd_skills = match_skills(jd_text, skills_master)
+    all_skills = flatten_skills(skills_master)
 
-    resume_set = set(s.lower() for s in resume_skills)
-    jd_set = set(s.lower() for s in jd_skills)
+    jd_keyword = match_skills(jd_text, all_skills)
+    jd_semantic = semantic_skill_match(jd_text, all_skills)
 
-    matched = sorted(resume_set.intersection(jd_set))
-    missing = sorted(jd_set.difference(resume_set))
+    jd_skills = {
+        s.lower().strip()
+        for s in (jd_keyword + jd_semantic)
+    }
+
+    resume_set = {
+        s.lower().strip()
+        for s in resume_skills
+    }
+
+    matched = sorted(jd_skills & resume_set)
+    missing = sorted(jd_skills - resume_set)
 
     return {
         "matched_skills": matched,
         "missing_skills": missing
     }
 
-def rank_resumes(resume_entries: list, jd_text: str, skills_master: list):
+def rank_resumes(resume_entries: list, jd_text: str, skills_master: dict):
     """
     Rank multiple resumes against a single job description.
 
@@ -116,7 +109,7 @@ def hybrid_score(
     jd_text: str,
     resume_experience: float,
     required_experience: float,
-    skills_master: list
+    skills_master: dict
 ) -> float:
     """
     Compute hybrid score using semantic similarity, skill match, and experience.
@@ -125,13 +118,14 @@ def hybrid_score(
         float: final score (0–100)
     """
     # --- Skill match percentage ---
+    all_skills = flatten_skills(skills_master)
 
-    jd_skills = match_skills(jd_text, skills_master)
+    jd_skills = match_skills(jd_text, all_skills)
 
     if jd_skills:
         skill_match_pct = (len(set(resume_skills) & set(jd_skills)) / len(jd_skills)) * 100
     else:
-        skill_match_pct = 50  # neutral if JD has no explicit skills
+        skill_match_pct = 50  
 
     # --- Experience score ---
     if resume_experience is None or required_experience is None:

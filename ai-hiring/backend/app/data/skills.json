@@ -1,25 +1,70 @@
-[
-  "python",
-  "java",
-  "c++",
-  "javascript",
-  "react",
-  "nodejs",
-  "django",
-  "flask",
-  "sql",
-  "mysql",
-  "postgresql",
-  "aws",
-  "docker",
-  "kubernetes",
-  "tensorflow",
-  "pytorch",
-  "machine learning",
-  "nlp",
-  "data analysis",
-  "excel",
-  "git",
-  "html",
-  "css"
-]
+{
+  "programming_languages": [
+    "Python","Java","C","C++","C#","Go","Rust","JavaScript","TypeScript",
+    "PHP","Ruby","Kotlin","Swift","R","MATLAB","Scala","Perl","Dart",
+    "Objective-C","Shell","Bash","PowerShell","Groovy","Julia","Lua",
+    "Haskell","Elixir","F#","COBOL","Fortran","Assembly"
+  ],
+  "web_development": [
+    "HTML","CSS","SASS","SCSS","Tailwind CSS","Bootstrap","Material UI",
+    "React","Next.js","Vue.js","Nuxt.js","Angular","Svelte","SolidJS",
+    "Node.js","Express.js","Fastify","NestJS","Django","Flask","FastAPI",
+    "Spring Boot","Ruby on Rails","ASP.NET","GraphQL","REST API",
+    "WebSockets","JWT","OAuth","OpenAPI","Swagger"
+  ],
+  "databases": [
+    "MySQL","PostgreSQL","SQLite","MongoDB","Redis","Elasticsearch",
+    "Cassandra","DynamoDB","MariaDB","Oracle","SQL Server","Neo4j",
+    "InfluxDB","Firestore","CosmosDB","CouchDB","Supabase",
+    "TimescaleDB","DuckDB"
+  ],
+  "data_science": [
+    "Data Analysis","Data Cleaning","Data Visualization","EDA",
+    "Pandas","NumPy","SciPy","Matplotlib","Seaborn","Plotly",
+    "Power BI","Tableau","Excel","Google Sheets","Statistics",
+    "Hypothesis Testing","Regression Analysis","Time Series",
+    "A/B Testing","SPSS","SAS","Stata"
+  ],
+  "machine_learning_ai": [
+    "Machine Learning","Deep Learning","Neural Networks","CNN","RNN",
+    "LSTM","Transformers","NLP","Computer Vision","Speech Recognition",
+    "Reinforcement Learning","Supervised Learning","Unsupervised Learning",
+    "Scikit-learn","TensorFlow","Keras","PyTorch","XGBoost","LightGBM",
+    "CatBoost","Hugging Face","LangChain","OpenAI API","LLMs",
+    "Prompt Engineering","Vector Embeddings","FAISS","Pinecone"
+  ],
+  "devops_cloud": [
+    "AWS","Azure","Google Cloud","Docker","Kubernetes","Terraform",
+    "Ansible","Jenkins","GitHub Actions","GitLab CI","CircleCI",
+    "CI/CD","Linux","Nginx","Apache","Vercel","Netlify","Cloudflare",
+    "Serverless","Lambda","EC2","S3","RDS","ECS","EKS"
+  ],
+  "mobile_development": [
+    "Android","iOS","Flutter","React Native","SwiftUI","Jetpack Compose",
+    "Kotlin Multiplatform","Xamarin","Ionic","Cordova",
+    "Mobile UI/UX","App Store Deployment","Play Store Deployment"
+  ],
+  "testing_qa": [
+    "Unit Testing","Integration Testing","System Testing",
+    "Manual Testing","Automation Testing","Selenium","Cypress",
+    "Playwright","Jest","Mocha","Chai","PyTest","JUnit",
+    "Load Testing","Performance Testing","Security Testing"
+  ],
+  "cybersecurity": [
+    "Cyber Security","Network Security","Application Security",
+    "Penetration Testing","Ethical Hacking","OWASP","Vulnerability Assessment",
+    "SIEM","SOC","Firewall","IDS","IPS","Zero Trust","Encryption",
+    "Cryptography","Threat Modeling","Incident Response"
+  ],
+  "product_design": [
+    "Product Management","Agile","Scrum","Kanban","JIRA","Confluence",
+    "UX Design","UI Design","Figma","Adobe XD","Sketch","Wireframing",
+    "Prototyping","User Research","Design Systems","Accessibility"
+  ],
+  "soft_skills": [
+    "Communication","Leadership","Teamwork","Problem Solving",
+    "Critical Thinking","Time Management","Decision Making",
+    "Stakeholder Management","Presentation Skills","Negotiation",
+    "Conflict Resolution","Adaptability","Creativity"
+  ]
+}

@@ -25,3 +25,18 @@ export async function fetchHistoryDetail(sessionId, token) {
   if (!res.ok) throw new Error("Failed to load session details");
   return res.json();
 }
+
+export async function deleteHistorySession(sessionId, token) {
+  const res = await fetch(`http://127.0.0.1:8000/api/history/${sessionId}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to delete history");
+  }
+
+  return res.json();
+}

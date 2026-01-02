@@ -4,15 +4,46 @@ import Register from "./pages/Register";
 import UploadResumes from "./pages/UploadResumes";
 import HistoryPage from "./pages/HistoryPage";
 import ProtectedRoute from "./auth/ProtectedRoute";
+import HistoryDetail from "./pages/HistoryDetail";
+import Landing from "./pages/Landing";
+import { useAuth } from "./auth/AuthContext";
+
+function PublicRoute({ children }) {
+  const { token } = useAuth();
+  return token ? <Navigate to="/upload" replace /> : children;
+}
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
         {/* Public */}
-        <Route path="/" element={<Navigate to="/login" replace />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+        <Route
+          path="/"
+          element={
+            <PublicRoute>
+              <Landing />
+            </PublicRoute>
+          }
+        />
+
+        <Route
+          path="/login"
+          element={
+            <PublicRoute>
+              <Login />
+            </PublicRoute>
+          }
+        />
+
+        <Route
+          path="/register"
+          element={
+            <PublicRoute>
+              <Register />
+            </PublicRoute>
+          }
+        />
 
         {/* Protected */}
         <Route
@@ -29,6 +60,15 @@ export default function App() {
           element={
             <ProtectedRoute>
               <HistoryPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/history/:sessionId"
+          element={
+            <ProtectedRoute>
+              <HistoryDetail />
             </ProtectedRoute>
           }
         />

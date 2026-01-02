@@ -353,25 +353,3 @@ def extract_experience_years(text: str) -> Optional[float]:
         return round(total_months / 12.0, 1)
 
     return None
-
-
-# ---------------- Skills matching ----------------
-
-def match_skills(text: str, skills_list: List[str]) -> List[str]:
-    """
-    Return a list of skills found in `text` based on `skills_list`.
-    Matching is case-insensitive and uses whole-word boundaries.
-    """
-    if not text or not skills_list:
-        return []
-    text_lower = text.lower()
-    found = []
-    # iterate skills_list in given order and collect matches
-    for s in skills_list:
-        s_clean = s.strip().lower()
-        if not s_clean:
-            continue
-        # match whole word (handles multi-word skills due to \b boundaries)
-        if re.search(r'\b' + re.escape(s_clean) + r'\b', text_lower):
-            found.append(s)
-    return found

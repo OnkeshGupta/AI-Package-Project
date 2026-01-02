@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 export default function Navbar() {
   return (
     <nav className="fixed top-0 left-0 w-full z-50 bg-black border-b border-white/10">
@@ -7,9 +9,18 @@ export default function Navbar() {
         </h1>
 
         <div className="space-x-6 text-sm text-gray-300">
-          <a href="#" className="hover:text-white transition">Features</a>
-          <a href="#" className="hover:text-white transition">Pricing</a>
-          <a href="#" className="hover:text-white transition">Login</a>
+          <a href="#" className="hover:text-white transition">
+            Features
+          </a>
+          <a href="#" className="hover:text-white transition">
+            Pricing
+          </a>
+          <Link to="/login" className="hover:text-white transition">
+            Login
+          </Link>
+          <Link to="/register" className="hover:text-white transition">
+            Register
+          </Link>
         </div>
       </div>
     </nav>

@@ -19,6 +19,7 @@ class RankedCandidate(BaseModel):
 
 
 class RankAndScoreResponse(BaseModel):
+    session_id: int
     job_description: str
     total_resumes: int
     ranked_candidates: List[RankedCandidate]

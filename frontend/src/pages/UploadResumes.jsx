@@ -2,9 +2,11 @@ import { useState } from "react";
 import Sidebar from "../components/Sidebar";
 import { rankAndScoreResumes } from "../api/resumeApi";
 import { useAuth } from "../auth/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 export default function UploadResumes() {
   const { token } = useAuth();
+  const navigate = useNavigate();
   const [files, setFiles] = useState([]);
   const [jobDescription, setJobDescription] = useState("");
   const [dragActive, setDragActive] = useState(false);
@@ -55,7 +57,10 @@ export default function UploadResumes() {
       }
 
       const data = await rankAndScoreResumes(files, jobDescription, token);
-      setResult(data);
+      if (!data.session_id) {
+        throw new Error("Session ID not returned from server");
+      }
+      navigate(`/history/${data.session_id}`);
     } catch (err) {
       setError(err.message);
     } finally {

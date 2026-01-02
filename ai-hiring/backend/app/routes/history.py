@@ -66,3 +66,26 @@ def get_history_detail(
             for score in session.scores
         ]
     }
+
+@router.delete("/history/{session_id}")
+def delete_history_session(
+    session_id: int,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    session = (
+        db.query(RankingSession)
+        .filter(
+            RankingSession.id == session_id,
+            RankingSession.user_id == current_user.id
+        )
+        .first()
+    )
+
+    if not session:
+        raise HTTPException(status_code=404, detail="Session not found")
+
+    db.delete(session)
+    db.commit()
+
+    return {"message": "History deleted successfully"}
