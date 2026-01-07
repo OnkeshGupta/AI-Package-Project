@@ -281,9 +281,12 @@ export default function UploadResumes() {
                       </div>
 
                       {/* SUMMARY */}
-                      <p className="mt-4 text-sm text-gray-400">
-                        {candidate.feedback.summary}
-                      </p>
+                      {candidate.feedback && (
+                        <p className="mt-4 text-sm text-gray-400">
+                          {candidate.feedback.why_this_candidate ||
+                            candidate.feedback.summary}
+                        </p>
+                      )}
                     </div>
                   ))}
               </div>

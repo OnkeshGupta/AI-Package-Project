@@ -58,10 +58,7 @@ def get_history_detail(
                 "final_score": score.final_score,
                 "matched_skills": score.matched_skills.split(", "),
                 "missing_skills": score.missing_skills.split(", "),
-                "feedback": {
-                    "verdict": score.verdict,
-                    "summary": score.verdict
-                }
+                "feedback": score.feedback
             }
             for score in session.scores
         ]

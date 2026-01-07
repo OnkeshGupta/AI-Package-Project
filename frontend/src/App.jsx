@@ -21,27 +21,21 @@ export default function App() {
         <Route
           path="/"
           element={
-            <PublicRoute>
               <Landing />
-            </PublicRoute>
           }
         />
 
         <Route
           path="/login"
           element={
-            <PublicRoute>
               <Login />
-            </PublicRoute>
           }
         />
 
         <Route
           path="/register"
           element={
-            <PublicRoute>
               <Register />
-            </PublicRoute>
           }
         />
 

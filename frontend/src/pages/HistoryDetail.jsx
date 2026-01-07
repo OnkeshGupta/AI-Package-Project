@@ -72,9 +72,28 @@ export default function HistoryDetail() {
                 )}
               </h3>
 
-              <p className="text-sm text-gray-400 mt-1">
-                Verdict: {candidate.feedback.verdict}
-              </p>
+              {/* VERDICT */}
+              {candidate.feedback && (
+                <div className="mt-2">
+                  <p className="text-sm font-semibold text-indigo-400">
+                    {candidate.feedback.verdict}
+                    {candidate.feedback.confidence_level &&
+                      ` (${candidate.feedback.confidence_level} Confidence)`}
+                  </p>
+
+                  {candidate.feedback.why_this_candidate && (
+                    <p className="text-sm text-gray-400 mt-1">
+                      {candidate.feedback.why_this_candidate}
+                    </p>
+                  )}
+
+                  {candidate.feedback.hiring_recommendation && (
+                    <p className="text-sm text-green-400 mt-2">
+                      {candidate.feedback.hiring_recommendation}
+                    </p>
+                  )}
+                </div>
+              )}
 
               {/* SCORE BAR */}
               <div className="mt-4">

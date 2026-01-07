@@ -1,9 +1,11 @@
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 export default function Sidebar() {
   const location = useLocation();
   const { logout } = useAuth();
+  const navigate = useNavigate();
 
   const navItem = (path) =>
     `relative flex items-center px-3 py-2 rounded-lg transition
@@ -16,9 +18,9 @@ export default function Sidebar() {
   return (
     <aside className="w-64 bg-zinc-950 border-r border-zinc-800 h-screen fixed left-0 top-0 px-6 py-8">
       {/* LOGO */}
-      <h2 className="text-xl font-bold mb-10">
+      <Link to="/" className="text-xl font-bold mb-14 block">
         TalentLens<span className="text-indigo-500">.AI</span>
-      </h2>
+      </Link>
 
       {/* NAV */}
       <nav className="space-y-2">
@@ -41,7 +43,10 @@ export default function Sidebar() {
 
         {/* LOGOUT */}
         <button
-          onClick={logout}
+          onClick={() => {
+            logout();
+            navigate("/");
+          }}
           className="flex items-center px-3 py-2 text-red-400 hover:text-red-500 hover:bg-zinc-900 rounded-lg transition w-full"
         >
           Logout

@@ -13,7 +13,7 @@ export default function AnimatedProcessFlow() {
     >
       {/* Animated gradient blob */}
       <motion.div
-        className="absolute top-1/2 left-1/2 w-[500px] h-[500px] rounded-full bg-indigo-500/20 blur-3xl"
+        className="absolute top-1/2 left-1/2 w-[500px] h-[500px] rounded-full bg-indigo-500/20 blur-3xl pointer-events-none"
         initial={{ opacity: 0, scale: 0.6 }}
         animate={isInView ? { opacity: 1, scale: 1 } : {}}
         transition={{ duration: 1.2, ease: "easeOut" }}

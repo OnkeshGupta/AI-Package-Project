@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, Float, Text, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
 from datetime import datetime, timezone
 from app.db.base import Base
+from sqlalchemy import JSON
 
 
 class ResumeJobScore(Base):
@@ -26,3 +27,4 @@ class ResumeJobScore(Base):
 
     resume = relationship("Resume", backref="scores")
     ranking_session = relationship("RankingSession", back_populates="scores")
+    feedback = Column(JSON, nullable=True)

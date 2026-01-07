@@ -1,11 +1,15 @@
 import { useState } from "react";
 import { registerUser } from "../api/authApi";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import { loginUser } from "../api/authApi";
+import { useAuth } from "../auth/AuthContext";
 
 export default function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
+  const { login } = useAuth();
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -14,7 +18,9 @@ export default function Register() {
 
     try {
       await registerUser(email, password);
-      navigate("/login");
+      const data = await loginUser(email, password);
+      login(data.access_token);
+      navigate("/upload");
     } catch (err) {
       setError(err.message);
     }
@@ -37,14 +43,24 @@ export default function Register() {
           required
         />
 
-        <input
-          type="password"
-          placeholder="Password"
-          className="w-full p-3 rounded bg-zinc-800"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
+        <div className="relative">
+          <input
+            type={showPassword ? "text" : "password"}
+            className="w-full p-3 rounded bg-zinc-800 pr-12"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-400 hover:text-white"
+          >
+            {showPassword ? "Hide" : "Show"}
+          </button>
+        </div>
 
         {error && (
           <div className="text-red-400 text-sm bg-red-500/10 p-2 rounded">
@@ -55,6 +71,13 @@ export default function Register() {
         <button className="w-full bg-indigo-600 py-3 rounded font-semibold hover:bg-indigo-500">
           Register
         </button>
+
+        <p className="text-sm text-gray-400 text-center">
+          Already have an account?{" "}
+          <Link to="/login" className="text-indigo-400 hover:underline">
+            Login
+          </Link>
+        </p>
       </form>
     </div>
   );

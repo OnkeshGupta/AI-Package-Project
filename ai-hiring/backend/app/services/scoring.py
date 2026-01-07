@@ -153,51 +153,75 @@ def generate_recruiter_feedback(
     resume_experience: float,
     required_experience: float
 ) -> dict:
-    """
-    Generate human-readable recruiter feedback based on scoring signals.
-    """
 
-    # --- Overall verdict ---
+    # --- Verdict label ---
     if final_score >= 75:
         verdict = "Strong Match"
+        confidence = "High"
     elif final_score >= 60:
         verdict = "Good Match"
+        confidence = "Medium"
     elif final_score >= 45:
         verdict = "Average Match"
+        confidence = "Low"
     else:
         verdict = "Weak Match"
+        confidence = "Very Low"
 
+    # --- Why this candidate ---
+    if final_score >= 75:
+        why = (
+            "The candidate closely aligns with the job requirements in terms of "
+            "skills and overall profile relevance. Their background suggests they "
+            "can contribute with minimal ramp-up time."
+        )
+    elif final_score >= 60:
+        why = (
+            "The candidate meets most core requirements but has a few gaps that may "
+            "require onboarding or upskilling."
+        )
+    elif final_score >= 45:
+        why = (
+            "The candidate partially matches the role. While some relevant skills "
+            "are present, there are notable gaps compared to the job requirements."
+        )
+    else:
+        why = (
+            "The candidate’s profile does not align well with the job requirements "
+            "and may require significant upskilling to fit the role."
+        )
 
-    # --- Strengths ---
-    strengths = []
-    if matched_skills:
-        strengths.append(f"Strong skill match in {', '.join(matched_skills[:5])}")
-    if resume_experience and required_experience:
-        if resume_experience >= required_experience:
-            strengths.append("Meets or exceeds required experience")
-        elif resume_experience >= required_experience * 0.7:
-            strengths.append("Close to required experience")
-
-    # --- Concerns ---
-    concerns = []
+    # --- Interview focus ---
     if missing_skills:
-        concerns.append(f"Missing key skills: {', '.join(missing_skills[:5])}")
-    if resume_experience and required_experience:
-        if resume_experience < required_experience * 0.7:
-            concerns.append("Experience significantly below requirement")
+        focus = (
+            "Focus the interview on assessing proficiency in missing or weak areas, "
+            "especially: " + ", ".join(missing_skills[:3])
+        )
+    else:
+        focus = (
+            "Focus the interview on depth of experience, real-world problem solving, "
+            "and cultural fit."
+        )
 
-    # --- Summary ---
-    summary_parts = []
-    if strengths:
-        summary_parts.append(strengths[0])
-    if concerns:
-        summary_parts.append(concerns[0])
-
-    summary = ". ".join(summary_parts) if summary_parts else "Profile requires further review."
+    # --- Hiring recommendation ---
+    if final_score >= 75:
+        recommendation = "Strongly recommended for interview."
+    elif final_score >= 60:
+        recommendation = "Recommended for interview with targeted evaluation."
+    elif final_score >= 45:
+        recommendation = "Consider only if candidate pool is limited."
+    else:
+        recommendation = "Not recommended for interview at this stage."
 
     return {
         "verdict": verdict,
-        "strengths": strengths,
-        "concerns": concerns,
-        "summary": summary
+        "summary": why,  # 👈 backward compatibility
+        "strengths": [why],
+        "concerns": [focus] if missing_skills else [],
+        
+        # NEW FIELDS (future-proof)
+        "confidence_level": confidence,
+        "why_this_candidate": why,
+        "interview_focus": focus,
+        "hiring_recommendation": recommendation
     }

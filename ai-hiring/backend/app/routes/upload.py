@@ -192,9 +192,16 @@ async def rank_and_score_resumes(
     db.refresh(session)
 
     # --- JD embedding (ONCE) ---
+    if not jd_text or not jd_text.strip():
+        raise HTTPException(
+            status_code=400,
+            detail="Job description cannot be empty"
+        )
+
     try:
-        jd_vec = get_embedding(jd_text)
-    except Exception:
+        jd_vec = EmbeddingService.encode([jd_text])[0]
+    except Exception as e:
+        print("JD embedding failed:", e)
         raise ScoringError("Failed to process job description")
     
     jd_keyword_skills = match_skills(jd_text, FLAT_SKILLS)
@@ -293,8 +300,10 @@ async def rank_and_score_resumes(
             final_score=final_score,
             matched_skills=", ".join(gap["matched_skills"]),
             missing_skills=", ".join(gap["missing_skills"]),
-            verdict=feedback["verdict"]
+            verdict=feedback["verdict"],
+            feedback=feedback
         )
+        
         db.add(score)
         db.commit()
 
